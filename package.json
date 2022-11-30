@@ -1,12 +1,11 @@
 {
-  "name": "js-challenges",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+    "name": "js-challenges",
+    "version": "1.0.0",
+    "description": "A little collection of javascript challenges.",
+    "scripts": {
+        "new": "node scripts/new.js"
+    },
+    "author": "coderkearns",
+    "repository": "https://github.com/coderkearns/js-challenges",
+    "license": "MIT"
 }
