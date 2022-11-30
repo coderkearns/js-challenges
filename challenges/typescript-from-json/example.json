@@ -1,0 +1,10 @@
+{
+    "name": "John",
+    "age": 18,
+    "types": ["a", "b"],
+    "next": {
+        "name": "Jane",
+        "age": 16,
+        "types": ["b", "c"]
+    }
+}
