@@ -1,10 +1,14 @@
-{
-    "name": "John",
-    "age": 18,
-    "types": ["a", "b"],
-    "next": {
-        "name": "Jane",
-        "age": 16,
-        "types": ["b", "c"]
+[
+    {
+        "name": "Person A",
+        "age": 1
+    },
+    {
+        "name": "Person B",
+        "age": 2
+    },
+    {
+        "name": "Person C",
+        "age": 3
     }
-}
+]

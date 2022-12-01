@@ -1,29 +1,53 @@
 module.exports = function tsFromJS(json) {
-    return generateObject(json)
+    const objects = []
+    objects.push(toType(json))
+
+    let i = 0
+    let ret = objects.map(o => `type T${i++} = ${typesToString(o)}`).join("\n")
+    return ret
 }
 
-function generateObject(obj) {
-    return (
-        "{ " +
-        Object.keys(obj)
-            .map(k => `${k}: ${typeOf(obj[k])}`)
-            .join("; ") +
-        " }"
-    )
-}
-
-function typeOf(o) {
-    if (typeof o === "object") {
-        if (Array.isArray(o)) {
-            if (o.length === 0) {
-                return "Array<unknown>"
-            } else {
-                return `Array<${typeOf(o[0])}>`
-            }
-        } else {
-            return generateObject(o)
-        }
+function toTypeObject(obj) {
+    let typeObject = {}
+    for (let key in obj) {
+        typeObject[key] = toType(obj[key])
     }
+    return typeObject
+}
 
-    return typeof o
+function toTypeArray(arr) {
+    return arr.length === 0 ? ["unknown"] : [toType(arr[0])]
+}
+function toType(item) {
+    if (typeof item === "object") {
+        if (Array.isArray(item)) {
+            return toTypeArray(item)
+        } else {
+            return toTypeObject(item)
+        }
+    } else {
+        return typeof item
+    }
+}
+
+function typesToString(typeObject) {
+    if (typeof typeObject === "object") {
+        if (Array.isArray(typeObject)) {
+            return `Array<${typesToString(typeObject[0])}>`
+        } else {
+            return typeObjectToString(typeObject)
+        }
+    } else {
+        return typeObject
+    }
+}
+
+function typeObjectToString(obj) {
+    return (
+        "{" +
+        Object.keys(obj)
+            .map(key => `${key}: ${typesToString(obj[key])}`)
+            .join("; ") +
+        "}"
+    )
 }
