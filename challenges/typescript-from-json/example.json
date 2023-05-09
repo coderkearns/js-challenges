@@ -1,14 +1,23 @@
-[
-    {
-        "name": "Person A",
-        "age": 1
-    },
-    {
-        "name": "Person B",
-        "age": 2
-    },
-    {
-        "name": "Person C",
-        "age": 3
+{
+    "people": [
+        {
+            "id": 1,
+            "name": "John"
+        },
+        {
+            "id": 2,
+            "name": "Jane"
+        },
+        {
+            "id": 3,
+            "name": "Joe"
+        }
+    ],
+    "self": {
+        "id": 2,
+        "friends": [
+            1,
+            3
+        ]
     }
-]
+}
