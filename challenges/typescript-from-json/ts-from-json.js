@@ -4,19 +4,30 @@ module.exports = function tsFromJS(json) {
     objects.map = {}
 
     const ast = jsonToAst(json, objects)
-    objects.map[`T${objects.index}`] = ast
+    objects.map[`JSONRoot`] = ast
 
     const string = objectsToString(objects.map)
     return string
 }
 
-function jsonToAst(json, objects) {
+function jsonToAst(json, objects, indent = 1) {
     if (typeof json === "object") {
         if (Array.isArray(json)) {
-            const item = { type: "generic", name: "Array", args: json.map(child => jsonToAst(child, objects)) }
-            return handleItem(item, objects)
+            if (json.length === 0) {
+                const item = {
+                    type: "generic", name: "Array", args: [{
+                        type: "literal",
+                        name: "unknown",
+                    }]
+                }
+                return handleItem(item, objects)
+            } else {
+                const item = { type: "generic", name: "Array", args: [jsonToAst(json[0], objects, indent)] }
+                if (json.length > 1) handleItem(item, objects)
+                return handleItem(item, objects)
+            }
         } else {
-            const item = { type: "object", items: Object.entries(json).map(([key, value]) => ({ key, value: jsonToAst(value, objects) })) }
+            const item = { indent, type: "object", items: Object.entries(json).map(([key, value]) => ({ key, value: jsonToAst(value, objects, indent + 1) })) }
             return handleItem(item, objects)
         }
     }
@@ -27,13 +38,27 @@ function jsonToAst(json, objects) {
     }
 }
 
+function areObjectsEqual(a, b) {
+    if (typeof a !== typeof b) return false
+    if (typeof a !== "object") return a === b
+    if (Array.isArray(a) && Array.isArray(b)) {
+        if (a.length !== b.length) return false
+        for (let i = 0; i < a.length; i++) {
+            if (!areObjectsEqual(a[i], b[i])) return false
+        }
+        return true
+    } else {
+        return Object.entries(a).every(([key, value]) => areObjectsEqual(value, b[key]))
+    }
+}
+
 function handleItem(item, objects) {
-    if (!objects.find(o => JSON.stringify(o) === JSON.stringify(item))) {
+    if (!objects.find(o => areObjectsEqual(o, item))) {
         objects.push(item)
         return item
     }
 
-    const pair = Object.entries(objects.map).find(([key, value]) => JSON.stringify(value) === JSON.stringify(item))
+    const pair = Object.entries(objects.map).find(([key, value]) => areObjectsEqual(value, item))
 
     // check it it has a key in objects.map
     if (pair) {
@@ -64,7 +89,7 @@ const types = {
     generic: (ast) => `${ast.name}<${ast.args.map(child => astToString(child)).join(", ")}>`,
     keyValuePair: (ast) => `${ast.key}: ${astToString(ast.value)}`,
     function: (ast) => `(${ast.args.map(child => types.keyValuePair(child)).join(", ")}) => ${astToString(ast.return)}`,
-    object: (ast) => `{\n${ast.items.map(child => "\t" + types.keyValuePair(child)).join(",\n")}\n}`,
+    object: (ast) => `{\n${ast.items.map(child => "\t".repeat(ast.indent) + types.keyValuePair(child)).join(",\n")}\n${"\t".repeat((ast.indent || 1) - 1)}}`,
 }
 
 function astToString(ast) {
