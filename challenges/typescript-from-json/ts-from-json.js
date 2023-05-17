@@ -76,7 +76,7 @@ function objectsToString(objects) {
     for (let key in objects) {
         const object = objects[key]
         const others = Object.fromEntries(Object.entries(objects).filter(([k, v]) => k !== key))
-        for (other in others) {
+        for (let other in others) {
             objects[other] = others[other].replaceAll(object, key)
         }
     }
